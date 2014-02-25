@@ -7,7 +7,7 @@ Usage:
 
 1.	// Init the BlitManager
 
-	BlitManager.Init(<target_display_object>, <target_width>, <target_height>);
+	BlitManager.Init(target_display_object, target_width, target_height);
 	
 2.	// Set background
 
@@ -21,23 +21,27 @@ Usage:
 	
 3.	// Create blit layer(s)
 
-	BlitManager.addLayer(new BlitLayer(<layer_name>));
+	BlitManager.addLayer(new BlitLayer(layer_name));
 	
 	// A layer organizes the images.
 	// Images of the first added layer will appear under the images of the second added layer, and so on.
 
 4.	// Create a BlitImage
 
-	var blitImg:BlitImage = new BlitImage(<IBitmapDrawable_asset>, <image_name>, <allow_rotation>);
+	var blitImg:BlitImage = new BlitImage(IBitmapDrawable_asset, image_name, allow_rotation);
+	
+	// IBitmapDrawable_asset may be a sprite, movieclip, bitmap.
 	
 	// The cached bitmapData is linked to the image_name.
-	// In case of multiple objects with the same image_name, the cached bitmapData will be used
-	//instead of drawing a new one.
+	
+	// In case of multiple objects with the same image_name, the cached bitmapData will be used instead of drawing a new one.
+	
 	// Allow_rotation - caches rotated bitmapData and allows this image to be rotated.
+	
 	
 5.	// Add blitImg to a blit layer
 
-	BlitManager.getLayer(<layer_name>).addChild(blitImg);
+	BlitManager.getLayer(layer_name).addChild(blitImg);
 	
 	// The first added image will appear under the second, and so on.
 	
