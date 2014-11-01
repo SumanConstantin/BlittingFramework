@@ -8,7 +8,7 @@
     import flash.geom.Rectangle;
     import flash.utils.flash_proxy;
 
-    public class BlitImage extends Object
+    public class BlitImage extends BlitDisplayObject
     {
 		
 		private static var preDrawnRotationBMDs:Object = new Object();
@@ -18,14 +18,12 @@
 		private var prevY:Number = 0;
 		private var prevRot:Number = 0;
 		private var displayObjects:Vector.<DisplayObject> = new Vector.<DisplayObject>;
-		private var frameRect:Rectangle;	// Draw region, size of this image
+		
 		public var rotation:Number = 0;
 		public var angleStep:int = 5;		// Used to create preDrawn images rotated at this step from 0 to 360 degrees 
 		
         public var bmData:BitmapData;
-		public var x:Number = 0;
-		public var y:Number = 0;
-		public var parent:BlitLayer;
+		
 		public var name:String = "";
 		public var visible:Boolean = true;
 		public var allowRotation:Boolean = false;
@@ -64,23 +62,6 @@
 			bmData.draw(tempBMD, transformMatrix, null, null, null, true);
 		}
 		
-		public function get width():Number
-		{
-			return frameRect.width;
-		}
-		public function set width(_value:Number):void
-		{
-			frameRect.width = _value;
-		}
-		
-		public function get height():Number
-		{
-			return frameRect.height;
-		}
-		public function set height(_value:Number):void
-		{
-			frameRect.height = _value;
-		}
 		
         public function BlitImage(_img:*, _name:String, _allowRotation:Boolean = false)
         {
@@ -157,7 +138,7 @@
 			
         }
 		
-        public function Update() : void
+        public override function update() : void
         {
 			Render();
         }
@@ -242,7 +223,7 @@
 			preDrawnRotationBMDs[_name] = bmData.clone();
 		}
 		
-		public function dispose():void
+		public override function dispose():void
 		{
 			bmDataSrc = null;
 			bmData = null;
@@ -250,9 +231,6 @@
 			displayObjects = null;
 			
 			bmDataSrc:BitmapData;
-			displayObjects = null;
-			
-			bmData = null;
 			
 			if(parent)
 			{

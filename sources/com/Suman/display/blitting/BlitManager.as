@@ -1,12 +1,8 @@
 package com.Suman.display.blitting 
 {
-	import flash.display.Bitmap;
-	import flash.display.BitmapData;
-	import flash.display.IBitmapDrawable;
-	import flash.display.PixelSnapping;
-	import flash.display.Sprite;
+	import flash.display.*;
 	import flash.events.Event;
-	import flash.geom.Point;
+	import flash.geom.*;
 	
 	/**
 	 * ...
@@ -16,53 +12,89 @@ package com.Suman.display.blitting
 	{
 		protected static var baseLayerBM:Bitmap;
 		protected static var blitLayers:Vector.<BlitLayer>;
+		protected static var targetParent:Sprite;
+		public static var initialized:Boolean = false;
+		public static var defaultPoint:Point = new Point(0,0);
+		
+		public static var BMDs:Object = new Object();
 		
 		protected static var _baseLayerBMD:BitmapData;
-		public static function get baseLayerBMD():BitmapData
+		public static function get baseLayerBMD():BitmapData{return _baseLayerBMD;}
+		public static function set baseLayerBMD(_value:BitmapData):void {_baseLayerBMD = _value;}
+		
+		protected static var _autoUpdate:Boolean = false;
+		public static function get autoUpdate():Boolean{return _autoUpdate;}
+		public static function set autoUpdate(_value:Boolean):void 
 		{
-			return _baseLayerBMD;
-		}
-		public static function set baseLayerBMD(_value:BitmapData):void
-		{
-			_baseLayerBMD = _value;
-		}
+			if(_autoUpdate == _value) return;
+			
+			_autoUpdate = _value;
+			
+			if(_value)
+				targetParent.addEventListener(Event.ENTER_FRAME, autoUpdateEnterFrame);
+			else
+				targetParent.removeEventListener(Event.ENTER_FRAME, autoUpdateEnterFrame);
+		};
 		
 		public static var baseLayerBMDInit:BitmapData;
 		
-		public static function Init(_targetParent:*,_stageW,_stageH):void
+		public static function Init(_targetParent:*,_stageW,_stageH,_transparent:Boolean=true):void
 		{
-			baseLayerBMD = new BitmapData(_stageW, _stageH, false, 0);
+			if(initialized) return;
 			
+			initialized = true;
+			targetParent = _targetParent;
+			
+			BMDs = new Object();
+			
+			baseLayerBMD = new BitmapData(_stageW, _stageH, _transparent, 0);
 			baseLayerBM = new Bitmap(baseLayerBMD);
-			_targetParent.addChild(baseLayerBM);
+			targetParent.addChild(baseLayerBM);
 			
 			blitLayers = new Vector.<BlitLayer>();
 		}
 		
-		public static function Update():void
+		private static function autoUpdateEnterFrame(e:Event):void
 		{
-			baseLayerBMD.lock();
+			Update();
+		}
+		
+		public static function Update():void
+		{//trace("BlitManager.Update");
+			_baseLayerBMD.lock();
 			
 			// Draw opaque baselayer
-			if(baseLayerBMD != null)
-				baseLayerBMD.copyPixels(baseLayerBMDInit, baseLayerBMDInit.rect, baseLayerBMDInit.rect.topLeft);
+			if(baseLayerBMDInit != null)
+				_baseLayerBMD.copyPixels(baseLayerBMDInit, baseLayerBMDInit.rect, baseLayerBMDInit.rect.topLeft);
+			else
+			{
+				baseLayerBM.bitmapData.fillRect(baseLayerBM.bitmapData.rect, 0x00000000);
+				//
+				//_baseLayerBMD.fillRect(_baseLayerBMD.rect,0x00000000);
+				//_baseLayerBMD.copyPixels(_baseLayerBMD,_baseLayerBMD.rect,defaultPoint,null,null,true);
+			}
 			
 			// Draw all layers
 			for each(var bLayer:BlitLayer in blitLayers)
 				bLayer.Update();
 			
-			baseLayerBMD.unlock();
+			_baseLayerBMD.unlock();
         }
 		
 		public static function setBackgroundLayer(_img:*):void
 		{
 			// Set non-transparent background layer
-			BlitManager.baseLayerBMDInit = new BitmapData(_img.width, _img.height, false, 0);
-			BlitManager.baseLayerBMDInit.draw(_img);
+			baseLayerBMDInit = new BitmapData(_img.width, _img.height, false, 0);
+			baseLayerBMDInit.draw(_img);
 		}
 		
 		public static function addLayer(_blitLayer:BlitLayer):void
 		{
+			// Check if layer with same name exists => do not add
+			for each(var layer in blitLayers)
+				if(layer.name == _blitLayer.name)
+					return;
+				
 			blitLayers.push(_blitLayer);
 		}
 		
@@ -96,8 +128,10 @@ package com.Suman.display.blitting
 		
 		public static function cleanUp():void
 		{
-			while(blitLayers.length > 0)
-				removeLayer(blitLayers[0]);
+			if(blitLayers)
+				while(blitLayers.length > 0)
+					removeLayer(blitLayers[0]);
+			
 			blitLayers = null;
 			
 			if(baseLayerBM.parent)
@@ -108,6 +142,12 @@ package com.Suman.display.blitting
 			baseLayerBMDInit = null;
 			
 			BlitImage.cleanUp();
+			
+			initialized = false;
+			
+			autoUpdate = false;
+			
+			BMDs = null;
 		}
 	}
 	

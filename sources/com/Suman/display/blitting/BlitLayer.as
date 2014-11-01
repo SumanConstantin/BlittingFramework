@@ -12,14 +12,14 @@ package com.Suman.display.blitting
 	 */
 	public class BlitLayer
 	{
-        public var blitImages:Vector.<BlitImage>;
+        public var blitImages:Vector.<BlitDisplayObject>;
 		public var name:String = "";
 		
 		public function BlitLayer(_name:String):void
 		{
 			name = _name;
 			
-			blitImages = new Vector.<BlitImage>();
+			blitImages = new Vector.<BlitDisplayObject>();
 		}
 		
 		public function Update():void
@@ -28,12 +28,12 @@ package com.Suman.display.blitting
             var index:int = 0;
             while (index < blitImages.length)
 			{
-                blitImages[index].Update();
+                blitImages[index].update();
                 index++;
             }
 		}
 		
-		public function addChild(_blitImage:BlitImage):void
+		public function addChild(_blitImage:BlitDisplayObject):void
 		{
 			_blitImage.parent = this;
 			
@@ -44,7 +44,7 @@ package com.Suman.display.blitting
 			blitImages.push(_blitImage);
 		}
 		
-		public function removeChild(_blitImage:BlitImage):void
+		public function removeChild(_blitImage:BlitDisplayObject):void
 		{
 			if(_blitImage != null && blitImages.indexOf(_blitImage) != -1)
 			{
